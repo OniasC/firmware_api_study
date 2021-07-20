@@ -1,0 +1,3 @@
+mouse.c:11:6:updateCursor	8	static
+mouse.c:19:6:testFunc1	16	static
+mouse.c:23:6:testFunc2	16	static

@@ -1,0 +1,5 @@
+mpu-6050.c:7:9:mpu6050Init	40	static
+mpu-6050.c:41:6:mpu6050ReadAccel	40	static
+mpu-6050.c:64:6:mpu6050ReadGyro	40	static
+mpu-6050.c:86:6:mpu6050ReadTemp	40	static
+mpu-6050.c:99:6:mpu6050ReadAll	48	static

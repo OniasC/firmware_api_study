@@ -1,0 +1,6 @@
+imu.c:15:12:IMU_I2C_ctor	24	static
+imu.c:37:12:IMU_complementaryFilter	40	static
+imu.c:63:19:IMU_readAllI2C_VTable	16	static
+imu.c:69:19:IMU_readAccelI2C_VTable	16	static
+imu.c:75:12:IMU_readGyroI2C_VTable	16	static
+imu.c:81:12:IMU_readTempI2C_VTable	16	static

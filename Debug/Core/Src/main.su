@@ -1,0 +1,7 @@
+imu.h:71:26:IMU_readAllI2C	16	static
+eeprom.h:54:29:eeprom_Read	40	static
+eeprom.h:59:29:eeprom_Write	40	static
+eeprom.h:64:29:eeprom_PageErase	16	static
+main.c:85:5:main	40	static
+main.c:180:6:SystemClock_Config	88	static
+main.c:230:6:Error_Handler	4	static,ignoring_inline_asm

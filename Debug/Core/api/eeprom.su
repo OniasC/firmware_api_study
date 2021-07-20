@@ -1,0 +1,6 @@
+eeprom.c:19:15:eeprom_ctor	24	static
+eeprom.c:43:22:eeprom_ReadVTable	24	static
+eeprom.c:49:22:eeprom_WriteVTable	24	static
+eeprom.c:55:22:eeprom_PageEraseVTable	16	static
+eeprom.c:61:22:eeprom_WriteNumberVTable	24	static
+eeprom.c:67:22:eeprom_ReadNumberVTable	24	static

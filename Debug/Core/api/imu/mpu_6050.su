@@ -1,0 +1,5 @@
+mpu_6050.c:11:12:imu_mpu6050_ctor	24	static
+mpu_6050.c:32:12:imu_mpu6050_readAccelVTable	40	static
+mpu_6050.c:57:12:imu_mpu6050_readGyroVTable	40	static
+mpu_6050.c:82:12:imu_mpu6050_readTempVTable	40	static
+mpu_6050.c:97:12:imu_mpu6050_readAllVTable	48	static
