@@ -29,9 +29,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "../bsp/bsp.h"
-#include "../api/imu.h"
 #include "../api/api.h"
-#include "../api/mouse.h"
 #include "string.h"
 
 
@@ -68,13 +66,12 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
-// MPU6050_t MPU6050;
 mouseHID_t mousehid = {0,0,0,0};
-
-#define DEV_ADDR 0xa0
-//uint8_t dataw1[] = "hello world from EEPROM";
 uint8_t dataw1[] = "Onias,EEE";
 uint8_t data_r[256];
+extern imu_status imu_error;
+
+error_e all_errors = ERR_IMU | ERR_EEPROM; //is this right??
 
 /* USER CODE END 0 */
 
@@ -114,27 +111,30 @@ int main(void)
 
   BSP_EEPROM_Init();
   BSP_IMU_Init();
-
+  BSP_DISPLAY_7SEG_Init();
   //HAL_ADC_Start_DMA(&hadc1, values, 2); //start the adc in dma mode
   //here "values" is the buffer, where the adc values are going to store
   //2 is the number of values going to store == no. of channels we are using
 
-  int val_x = 0;
+  /*int val_x = 0;
   int val_y = 0;
   //int MAX = 200;
   int polarity=1;
-  int step = 1;
+  int step = 1;*/
 
   //char txBuf[8];
   //uint8_t count = 1;
+  if (eeprom.super.status != EEPROM_NOT_INIT)
+  {
+	  eeprom_EraseAllPages((eeprom_t *)&eeprom);
+	  /*for (int i=0; i<eeprom.super.number_pages; i++)
+	  {
+		  eeprom_PageErase((eeprom_t *)&eeprom, i);
+	  }*/
 
-  for (int i=0; i<eeprom3.super.number_pages; i++)
-    {
-	  eeprom_PageErase((eeprom_t *)&eeprom3, i);
-    }
-
-    eeprom_Write((eeprom_t *)&eeprom3, 0, 0, dataw1, strlen((char *)dataw1));
-    eeprom_Read((eeprom_t *)&eeprom3, 0, 0, data_r, strlen((char *)dataw1));
+    eeprom_Write((eeprom_t *)&eeprom, 0, 0, dataw1, strlen((char *)dataw1));
+    eeprom_Read((eeprom_t *)&eeprom, 0, 0, data_r, strlen((char *)dataw1));
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -144,7 +144,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+	  display_7seg_WriteDigit((display_7seg_t *)&display_7seg_cc_io, disp_7Seg_8, dot_on);
+	  HAL_Delay(400);
+	  display_7seg_WriteDigit((display_7seg_t *)&display_7seg_cc_io, disp_7Seg_d, dot_off);
+	  HAL_Delay(400);
+	  display_7seg_WriteDigit((display_7seg_t *)&display_7seg_cc_io, disp_7seg_3, dot_on);
+	  HAL_Delay(400);
+	  display_7seg_WriteDigit((display_7seg_t *)&display_7seg_cc_io, disp_7Seg_f, dot_off);
+	  HAL_Delay(300);
 	  /*sprintf(txBuf, "%u\r\n", count);
 	  count++;
 	  if(count>MAX) count=1;
@@ -160,13 +167,17 @@ int main(void)
 	  updateCursor(hUsbDeviceFS, mousehid, val_x, val_y);
 	  mousehid.testFunc = testFunc2;
 	  mousehid.testFunc(mousehid.button);*/
-	  IMU_readAllI2C((imu_t *)&imu1, &hi2c1);
+	  imu_error = IMU_readAllI2C((imu_t *)&imu1, &hi2c1);
+	  if (imu_error == IMU_INIT_ERROR)
+	  {
+		  API_Error_Report((error_e *)ERR_IMU, (bsp_status *)0);
+	  }
 
 	  if (imu1.imu.pitch > 90.0 || imu1.imu.roll > 90.0)
 	  {
 		  HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
 	  }
-
+	  //HAL_GPIO_TogglePin(DISP_7S_7_GPIO_Port, DISP_7S_7_Pin);
 	  HAL_Delay (100);
 
   }

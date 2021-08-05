@@ -35,9 +35,9 @@ eeprom_status eeprom_at24c_ctor(eeprom_at24c * const me, eeprom_chip eeprom, I2C
 							float *fdata))&eeprom_at24c_readNumVTable
 	};
 	eeprom_status eeprom_ctor_status = eeprom_ctor(&(me->super),
-					eeprom,
-					hi2c,
-					i2c_address_mask);
+													eeprom,
+													hi2c,
+													i2c_address_mask);
 	me->super.vptr = &vtable;
 	return eeprom_ctor_status;
 }
@@ -53,7 +53,7 @@ uint16_t bytestowrite (eeprom_at24c const * const me, uint16_t size, uint16_t of
 	else return me->super.page_size_bytes-offset;
 }
 
-void float2Bytes(uint8_t * ftoa_bytes_temp,float float_variable)
+void float2Bytes(uint8_t * ftoa_bytes_temp, float float_variable)
 {
     union {
       float a;
@@ -83,14 +83,10 @@ float Bytes2float(uint8_t * ftoa_bytes_temp)
    return float_variable;
 }
 
-/* READ the data from the EEPROM
- * @page is the number of the start page. Range from 0 to PAGE_NUM-1
- * @offset is the start byte offset in the page. Range from 0 to PAGE_SIZE-1
- * @data is the pointer to the data to write in bytes
- * @size is the size of the data
- */
 eeprom_status eeprom_at24c_readVTable (eeprom_at24c const * const me, uint16_t page, uint16_t offset, uint8_t *data, uint16_t size)
 {
+	eeprom_status eeprom_s;
+
 	int paddrposition = log(me->super.page_size_bytes)/log(2);
 
 	uint16_t startPage = page;
@@ -98,8 +94,10 @@ eeprom_status eeprom_at24c_readVTable (eeprom_at24c const * const me, uint16_t p
 
 	uint16_t numofpages = (endPage-startPage) + 1;
 	if (endPage > me->super.number_pages-1)
-		return EEPROM_ERROR_OVERFLW_PAGS;
-
+	{
+		eeprom_s = EEPROM_ERROR_OVERFLW_PAGS;
+		goto endfunction;
+	}
 	uint16_t pos=0;
 
 	for (int i=0; i<numofpages; i++)
@@ -112,15 +110,13 @@ eeprom_status eeprom_at24c_readVTable (eeprom_at24c const * const me, uint16_t p
 		size = size-bytesremaining;
 		pos += bytesremaining;
 	}
-	return EEPROM_NO_ERROR;
+	eeprom_s = EEPROM_NO_ERROR;
+
+endfunction:
+	API_Error_Report((error_e *)ERR_EEPROM, (bsp_status *)eeprom_s);
+	return eeprom_s;
 }
 
-/* write the data to the EEPROM
- * @page is the number of the start page. Range from 0 to PAGE_NUM-1
- * @offset is the start byte offset in the page. Range from 0 to PAGE_SIZE-1
- * @data is the pointer to the data to write in bytes
- * @size is the size of the data
- */
 eeprom_status eeprom_at24c_writeVTable(eeprom_at24c const * const me, uint16_t page, uint16_t offset, uint8_t *data, uint16_t size)
 {
 	if (offset > me->super.number_pages-1)
@@ -157,10 +153,6 @@ eeprom_status eeprom_at24c_writeVTable(eeprom_at24c const * const me, uint16_t p
 	return EEPROM_NO_ERROR;
 }
 
-/* Erase a page in the EEPROM Memory
- * @page is the number of page to erase
- * In order to erase multiple pages, just use this function in the for loop
- */
 eeprom_status eeprom_at24c_pageEraseVTable(eeprom_at24c const * const me, uint16_t page)
 {
 	// calculate the memory address based on the page number
@@ -180,11 +172,6 @@ eeprom_status eeprom_at24c_pageEraseVTable(eeprom_at24c const * const me, uint16
 	return EEPROM_NO_ERROR;
 }
 
-/*Write the Float/Integer values to the EEPROM
- * @page is the number of the start page. Range from 0 to PAGE_NUM-1
- * @offset is the start byte offset in the page. Range from 0 to PAGE_SIZE-1
- * @data is the float/integer value that you want to write
- */
 eeprom_status eeprom_at24c_writeNumVTable(eeprom_at24c const * const me, uint16_t page, uint16_t offset, float fdata)
 {
 	float2Bytes(bytes_temp, fdata);
@@ -192,11 +179,6 @@ eeprom_status eeprom_at24c_writeNumVTable(eeprom_at24c const * const me, uint16_
 	return eeprom_at24c_writeVTable(me, page, offset, bytes_temp, 4);
 }
 
-/* Reads the single Float/Integer values from the EEPROM
- * @page is the number of the start page. Range from 0 to PAGE_NUM-1
- * @offset is the start byte offset in the page. Range from 0 to PAGE_SIZE-1
- * @returns the float/integer value
- */
 eeprom_status eeprom_at24c_readNumVTable(eeprom_at24c const * const me, uint16_t page, uint16_t offset, float *fdata)
 {
 	uint8_t buffer[4];

@@ -13,7 +13,7 @@ void updateCursor(USBD_HandleTypeDef hUsbDeviceFS, mouseHID_t mousehid, int8_t v
 	mousehid.mouse_x = val_x;
 	mousehid.mouse_y = val_y;
 
-	USBD_HID_SendReport(&hUsbDeviceFS, &mousehid, sizeof (mousehid));
+	USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&mousehid, sizeof (mousehid));
 }
 
 void testFunc1(uint8_t button){

@@ -10,8 +10,8 @@
 
 #include "main.h"
 #include "api.h"
-#include "imu/mpu-6050.h"
 #include "math.h"
+#include "states.h"
 
 #define PI 3.14159265359
 #define IMU_SAMPLING_TIME 0.01
@@ -23,17 +23,13 @@ typedef enum {
 	/* Enter later other IMUs we could end up using */
 } imu_sensor;
 
-typedef enum {
-	IMU_NO_ERROR = 0,
-	IMU_INIT_ERROR = 1,
-	IMU_CALIB_ERROR = 2,
-} imu_status;
+
 
 typedef struct
 {
 	struct imu_vtable const *vptr; /* virtual pointer */
 	imu_sensor sensor;
-	imu_status state;
+	imu_status status;
     float pitch;
     float roll;
 

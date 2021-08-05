@@ -29,14 +29,26 @@ eeprom_status eeprom_ctor(eeprom_t * const me, eeprom_chip eeprom, I2C_HandleTyp
 	me->hi2c = hi2c;
 	me->i2c_address = (0b1010 << 4) | i2c_address_mask; /*0xA0*/
 
+	eeprom_status eeprom_init_status;
+
 	if (me->eeprom_chip == EEPROM_AT24C02C)
 	{
 		me->number_pages = 32;
 		me->page_size_bytes = 8;
 		me->memAddSize = 1;
+		eeprom_init_status = EEPROM_NO_ERROR;
 	}
-	else return EEPROM_ERROR;
+	else eeprom_init_status = EEPROM_NOT_INIT;
 
+	return eeprom_init_status;
+}
+
+eeprom_status eeprom_EraseAllPages(eeprom_t * const me)
+{
+	for (int i=0; i<me->number_pages; i++)
+	{
+		eeprom_PageErase(me, i);
+	}
 	return EEPROM_NO_ERROR;
 }
 
