@@ -8,7 +8,7 @@
 #ifndef API_IMU_MPU6050_H_
 #define API_IMU_MPU6050_H_
 
-#include "../imu.h"
+#include "imu.h"
 
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
@@ -35,15 +35,15 @@ typedef struct {
 
 } imu_mpu6050_t;
 
-imu_status imu_mpu6050_ctor(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_ctor(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
-imu_status imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
-imu_status imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
-imu_status imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
-imu_status imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
 
 #endif /* API_IMU_MPU6050_H_ */

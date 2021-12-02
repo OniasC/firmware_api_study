@@ -14,39 +14,43 @@
 #define API_TRUE 1U
 #define API_FALSE 0U
 
-typedef enum {
-	NO_ERROR,
-	ERR_IMU,
-	ERR_EEPROM,
-	ERR_USB_HID,
-	ERR_SD_CARD,
-	ERR_LCD,
-	ERR_IR,
-	ERR_MOTOR_0,
-	ERR_MOTOR_1,
-	ERR_OTHER
-} error_e;
-
-typedef struct {
-	imu_status 		imu_state;
-	eeprom_status 	eeprom_state;
-} bsp_status;
-
 /*
- * !! How I want api reporting to work:
+ * how to add a new peripheral to the code:
+ * - Create a folder that represents the high level object being created (i.e. imu, eeprom etc)
+ * - Inside such folder, create generic .c and .h files that represent all generic attributes of such object
+ * - Inside that header file, include "api.h" and "states.h", they hold not only the error functions but also the possible states that peripheral can have
+ * 	-- Create a struct that holds all the already mentioned parameters as well as the state
+ * 	-- implement in the .h and .c all high level functions
+ * - If justified, create specific ICs libraries (.c and .h files) and create a second struct specific for that type of IC
+ * 	-- This specific struct shall inherit the functions and parameters of the higher level struct, as one of the parameters of the second struct is the first.
+ * 	-- To add polymorphism is a bit trickier and involves created a struct of pointers to functions in order that the high level function can call the lower level
+ * 	   function if the parameter is of such type
  *
- * If an interface to log or show the error is available (sdcard, lcd screen, 7seg display, leds)
- * it will receive the error command and a few extra informations (like what was expected/received, etc)
- * But it should not stop the flow of the code (it would, depending if the error is big or small)
+ * 	example:
+ * 		TODO: WRITE DOWN EXAMPLE ...
  *
- * it would get the status of the sensor (whether it would be imu, eeprom, lcd, sd card, whatever)
- * It should be called in the function the error appeared but also the function returns the sensor status if
- * less overhead is desired and not so intense error checking
- *
- * error_e could be filled with all the errors to be more a succint way to report the errors
  * */
 
+/*
+ *structure to represent a gpio pin. Params are pin number and port number
+ * */
+typedef struct {
+	uint16_t gpio_pin;
+	GPIO_TypeDef *gpio_port;
+} io_pin_t;
 
-void API_Error_Report(error_e *error, bsp_status *status);
+typedef struct {
+	TIM_HandleTypeDef *htim;
+	uint32_t Channel;
+} pwm_t;
+
+
+typedef struct {
+	imu_status_e 			imu_state;
+	eeprom_status_e 		eeprom_state;
+	display_7seg_status_e 	display_7seg_state;
+} bsp_status_t;
+
+
 
 #endif /* API_API_H_ */

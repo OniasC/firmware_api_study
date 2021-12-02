@@ -7,12 +7,12 @@
 
 #include "imu.h"
 
-static imu_status IMU_readAllI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c);
-static imu_status IMU_readAccelI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c);
-static imu_status IMU_readGyroI2C_VTable(imu_t *imu, I2C_HandleTypeDef *I2Cx);
-static imu_status IMU_readTempI2C_VTable(imu_t *imu, I2C_HandleTypeDef *I2Cx);
+static imu_status_e IMU_readAllI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c);
+static imu_status_e IMU_readAccelI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c);
+static imu_status_e IMU_readGyroI2C_VTable(imu_t *imu, I2C_HandleTypeDef *I2Cx);
+static imu_status_e IMU_readTempI2C_VTable(imu_t *imu, I2C_HandleTypeDef *I2Cx);
 
-imu_status IMU_I2C_ctor(imu_t * const imu, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask)
+imu_status_e IMU_I2C_ctor(imu_t * const imu, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask)
 {
 	static const struct imu_vtable vtable = {
 			&IMU_readAllI2C_VTable,
@@ -34,7 +34,7 @@ imu_status IMU_I2C_ctor(imu_t * const imu, I2C_HandleTypeDef *hi2c, uint8_t i2c_
 	return IMU_NO_ERROR;
 }
 
-imu_status IMU_complementaryFilter(imu_t *imu)
+imu_status_e IMU_complementaryFilter(imu_t *imu)
 {
 	float accel_pitch;
 	float accel_roll;
@@ -60,25 +60,25 @@ imu_status IMU_complementaryFilter(imu_t *imu)
 	return IMU_NO_ERROR;
 }
 
-static imu_status IMU_readAllI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c)
+static imu_status_e IMU_readAllI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c)
 {
 	(void)imu;
 	return IMU_NO_ERROR;
 }
 
-static imu_status IMU_readAccelI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c)
+static imu_status_e IMU_readAccelI2C_VTable(imu_t *imu, I2C_HandleTypeDef *hi2c)
 {
 	(void)imu;
 	return IMU_NO_ERROR;
 }
 
-imu_status IMU_readGyroI2C_VTable(imu_t * const imu, I2C_HandleTypeDef *I2Cx)
+imu_status_e IMU_readGyroI2C_VTable(imu_t * const imu, I2C_HandleTypeDef *I2Cx)
 {
 	(void)imu;
 	return IMU_NO_ERROR;
 }
 
-imu_status IMU_readTempI2C_VTable(imu_t * const imu, I2C_HandleTypeDef *I2Cx)
+imu_status_e IMU_readTempI2C_VTable(imu_t * const imu, I2C_HandleTypeDef *I2Cx)
 {
 	(void)imu;
 	return IMU_NO_ERROR;

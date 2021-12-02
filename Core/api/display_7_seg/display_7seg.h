@@ -8,7 +8,8 @@
 #ifndef API_DISPLAY_7SEG_H_
 #define API_DISPLAY_7SEG_H_
 
-#include "states.h"
+#include "../states.h"
+#include "../api.h"
 #include "main.h"
 
 typedef enum {
@@ -53,16 +54,16 @@ typedef struct {
 	uint16_t refresh_freq;
 	display_7seg_digit_e digit;
 	display_7seg_dot_e dot;
-	display_7seg_status status;
+	display_7seg_status_e status;
 } display_7seg_t;
 
 struct display_7seg_vtable {
-	display_7seg_status (*display_7seg_WriteDigitVCall)(display_7seg_t * const me, display_7seg_digit_e number, display_7seg_dot_e dot);
+	display_7seg_status_e (*display_7seg_WriteDigitVCall)(display_7seg_t * const me, display_7seg_digit_e number, display_7seg_dot_e dot);
 };
 
-display_7seg_status display_7seg_ctor(display_7seg_t * const me);
+display_7seg_status_e display_7seg_ctor(display_7seg_t * const me);
 
-static inline display_7seg_status display_7seg_WriteDigit(display_7seg_t * const me, display_7seg_digit_e number, display_7seg_dot_e dot)
+static inline display_7seg_status_e display_7seg_WriteDigit(display_7seg_t * const me, display_7seg_digit_e number, display_7seg_dot_e dot)
 {
 	return (*me->vptr->display_7seg_WriteDigitVCall)(me, number, dot);
 }

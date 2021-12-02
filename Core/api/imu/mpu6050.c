@@ -8,28 +8,29 @@
 #include "mpu6050.h"
 
 
-imu_status imu_mpu6050_ctor(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
+imu_status_e imu_mpu6050_ctor(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
 {
 	static const struct imu_vtable vtable = {
-			(imu_status (*)(	imu_t * const mpu6050,
+			(imu_status_e (*)(	imu_t * const mpu6050,
 								I2C_HandleTypeDef *hi2c))&imu_mpu6050_readAllVTable,
-			(imu_status (*)(	imu_t * const mpu6050,
+			(imu_status_e (*)(	imu_t * const mpu6050,
 								I2C_HandleTypeDef *hi2c))&imu_mpu6050_readAccelVTable,
-			(imu_status (*)(	imu_t * const mpu6050,
+			(imu_status_e (*)(	imu_t * const mpu6050,
 								I2C_HandleTypeDef *hi2c))&imu_mpu6050_readGyroVTable,
-			(imu_status (*)(	imu_t * const mpu6050,
+			(imu_status_e (*)(	imu_t * const mpu6050,
 								I2C_HandleTypeDef *hi2c))&imu_mpu6050_readTempVTable,
 		};
-		imu_status imu_ctor_status = IMU_I2C_ctor(&(mpu6050->imu),
+		imu_status_e imu_ctor_status = IMU_I2C_ctor(&(mpu6050->imu),
 						hi2c,
 						MPU6050_ADDR);
 		mpu6050->imu.vptr = &vtable;
 		mpu6050->i2c_timeout = 100;
 		mpu6050->Accel_Z_corrector = 14418.0;
+		mpu6050->imu.status = IMU_NOT_INIT;
 		return imu_ctor_status;
 }
 
-imu_status imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
+imu_status_e imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
 {
 	uint8_t Rec_Data[6];
 
@@ -54,7 +55,7 @@ imu_status imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_Handle
 	return IMU_NO_ERROR;
 }
 
-imu_status imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
+imu_status_e imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
 {
 	uint8_t Rec_Data[6];
 
@@ -79,7 +80,7 @@ imu_status imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleT
 	return IMU_NO_ERROR;
 }
 
-imu_status imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
+imu_status_e imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
 {
 	uint8_t Rec_Data[2];
 	int16_t temp;
@@ -94,7 +95,7 @@ imu_status imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleT
 	return IMU_NO_ERROR;
 }
 
-imu_status imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
+imu_status_e imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c)
 {
 	uint8_t Rec_Data[14];
 	int16_t temp;
