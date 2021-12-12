@@ -6,7 +6,7 @@
  */
 
 #include "tinyNetwork.h"
-#include "../radio/MY_NRF24.h"
+
 
 void tinyNetwork_ctor(tinyNetwork_t * const tiny_network, nrf24_t * const radio)
 {

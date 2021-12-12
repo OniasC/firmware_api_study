@@ -70,10 +70,11 @@ void SystemClock_Config(void);
 uint32_t counter = 0;
 
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+/*void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	counter = __HAL_TIM_GET_COUNTER(htim);
-}
+	motor_enc.encCounter[0] = counter;
+}*/
 
 char myRxData[50];
 char myTxData[32] = "Hello World!";
@@ -169,10 +170,13 @@ int main(void)
   }
   //BSP_DISPLAY_TFT_Init();
   //BSP_Motor_Init();
-  //BSP_Motor_w_Enc_Init();
+  BSP_Motor_w_Enc_Init();
   BSP_Port_Expansor_Init();
   BSP_DISPLAY_7SEG_Init();
+  BSP_Robot_Init();
 
+  float desiredRobotSpeed[] = {1.0, 3.0};
+  robot_setRobotSpeed(&robot, desiredRobotSpeed);
  portExpansor_writePins(&portExp, port1, 0b10110101, 0);/*all pins in port 1 as output HIGH*/
  HAL_Delay(300);
  portExpansor_writePins(&portExp, port1, 0b11111111, 0);/*all pins in port 1 as output HIGH*/
@@ -513,20 +517,23 @@ int main(void)
 
 
 
-	  if (motor1.status != 0)
+	  if (motorBrushes.status != 0)
 	  {
-		  if(speed > motor1.max_speed) polarity = -1;
+		  if(speed > motorBrushes.max_speed) polarity = -1;
 		  else if (speed < 0) polarity = 1;
 		  speed = speed + polarity*0.1;
-		  motor_speed(&motor1, 5);
+		  motor_speed(&motorBrushes, 5);
 	  }
-	  if (motor_enc.status != 0)
+	  if (motorWheelLeft.status != 0)
 	  {
-		  motor_speed_enc(&motor_enc, -5.0);
-		  HAL_Delay(1000);
-		  motor_speed_enc(&motor_enc, 5.0);
-		  HAL_Delay(1000);
+		  //motor_speed_enc(&motor_enc, -5.0);
+		  HAL_Delay(100);
+		  motor_speed_enc(&motorWheelLeft, 1.0);
+		  //HAL_Delay(1000);
 	  }
+
+	  robot_controlRobotSpeed(&robot, desiredRobotSpeed);
+	  moveForward(&robot, 0.5);
   }
   /* USER CODE END 3 */
 }

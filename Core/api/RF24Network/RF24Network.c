@@ -6,7 +6,6 @@
  */
 
 
-#include "../radio/MY_NRF24.h"
 #include "RF24Network.h"
 
 void RF24Network_ctor(RF24Network_t * const rf24network, nrf24_t * const radio)

@@ -8,11 +8,12 @@
 #ifndef API_TINYNETWORK_TINYNETWORK_H_
 #define API_TINYNETWORK_TINYNETWORK_H_
 
+#include "../api/radio/MY_NRF24.h"
 #include "tinyNetwork_config.h"
 #include "main.h"
-#include "../api.h"
-#include "../states.h"
-#include "../Error_Report.h"
+#include "../api/api.h"
+#include "../api/states.h"
+#include "../api/Error_Report.h"
 
 #include <stddef.h>
 #include <stdint.h>

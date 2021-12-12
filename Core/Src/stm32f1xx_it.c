@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "../api/motor/motor.h"
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -54,6 +55,7 @@
 /* USER CODE BEGIN 0 */
 volatile uint8_t FatFsCnt = 0;
 volatile uint8_t Timer1, Timer2;
+extern motor_t motorWheelLeft;
 
 void SDTimer_Handler(void)
 {
@@ -63,7 +65,7 @@ void SDTimer_Handler(void)
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim2;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -191,7 +193,12 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+	if (motorWheelLeft.status != 0)
+    {
+		motor_updateEncoderFifo(&motorWheelLeft);
+		motorWheelLeft.encCounter[0] = __HAL_TIM_GET_COUNTER(motorWheelLeft.encoder);
+		motorWheelLeft.deltaEncTicks = motorWheelLeft.encCounter[0] - motorWheelLeft.encCounter[MOTOR_ENCODER_STORAGE - 1];
+     }
 	//FatFsCnt++;
 	//if(FatFsCnt >= 10)
 	//{
@@ -211,20 +218,6 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
-
-/**
-  * @brief This function handles TIM2 global interrupt.
-  */
-void TIM2_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM2_IRQn 0 */
-
-  /* USER CODE END TIM2_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim2);
-  /* USER CODE BEGIN TIM2_IRQn 1 */
-
-  /* USER CODE END TIM2_IRQn 1 */
-}
 
 /* USER CODE BEGIN 1 */
 

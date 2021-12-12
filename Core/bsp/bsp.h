@@ -21,14 +21,20 @@
 #include "../api/display_7_seg/7seg_portExp.h"
 #include "../api/portExpansor/portExpansor.h"
 
+
 #include "../api/imu/mpu6050.h"
 #include "../api/imu/imu.h"
 
 
+#include "../app/robot.h"
+#include "../app/control/control.h"
+#include "../app/pathPlanning/basicPlanning.h"
+
 extern tft_display_t tft_display;
 extern nrf24_t radio;
-extern motor_t motor1;
-extern motor_t motor_enc;
+extern motor_t motorBrushes;
+extern motor_t motorWheelRight;
+extern motor_t motorWheelLeft;
 extern debug_option_e debug_option;
 extern eeprom_at24c_t eeprom;
 extern eeprom_t eeprom2;
@@ -36,6 +42,10 @@ extern eeprom_m24c64_t eeprom_bsp;
 extern imu_mpu6050_t imu1;
 extern portExpansor_t portExp;
 extern display_7seg_portExp_t disp7SegPExp;
+
+extern robot_t robot;
+extern control_pid_t pidWheel[ROBOT_NUM_WHEELS];
+extern control_pid_t pidRobot[ROBOT_NUM_SPEEDS];
 
 void BSP_DEBUG_Init(void);
 
@@ -52,5 +62,7 @@ motor_status_e BSP_Motor_Init(void);
 motor_status_e BSP_Motor_w_Enc_Init(void);
 
 void BSP_Port_Expansor_Init(void);
+
+void BSP_Robot_Init(void);
 
 #endif /* BSP_BSP_H_ */

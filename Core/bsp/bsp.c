@@ -9,8 +9,9 @@
 
 tft_display_t tft_display = {0};
 nrf24_t radio = {0};
-motor_t motor1 = {0};
-motor_t motor_enc = {0};
+motor_t motorBrushes = {0};
+motor_t motorWheelRight = {0};
+motor_t motorWheelLeft = {0};
 debug_option_e debug_option = 0;
 eeprom_at24c_t eeprom = {0};
 eeprom_m24c64_t eeprom_bsp = {0};
@@ -18,6 +19,9 @@ eeprom_t eeprom2;
 imu_mpu6050_t imu1 = {0};
 portExpansor_t portExp = {0};
 display_7seg_portExp_t disp7SegPExp = {0};
+robot_t robot = {0};
+control_pid_t pidWheel[ROBOT_NUM_WHEELS];
+control_pid_t pidRobot[ROBOT_NUM_SPEEDS];
 
 extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim1;
@@ -134,16 +138,16 @@ radio_status_e BSP_Radio_Init_Tx(void)
 motor_status_e BSP_Motor_Init(void)
 {
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
-	return motor_ctor(&motor1, 6.0, MOTOR_UNI_DIRECTIONAL, &htim4, TIM_CHANNEL_1, (uint16_t)0, (GPIO_TypeDef *)0, (uint16_t)0, (GPIO_TypeDef *)0);
+	return motor_ctor(&motorBrushes, 6.0, MOTOR_UNI_DIRECTIONAL, &htim4, TIM_CHANNEL_1, (uint16_t)0, (GPIO_TypeDef *)0, (uint16_t)0, (GPIO_TypeDef *)0, (TIM_HandleTypeDef *)0);
 }
 
 motor_status_e BSP_Motor_w_Enc_Init(void)
 {
 	HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
-	return motor_ctor(&motor_enc, 6.0, MOTOR_BI_DIRECTIONAL, &htim1, TIM_CHANNEL_4,
+	return motor_ctor(&motorWheelLeft, 6.0, MOTOR_BI_DIRECTIONAL, &htim1, TIM_CHANNEL_4,
 						MTR_1A_Pin, MTR_1A_GPIO_Port,
-						MTR_1B_Pin, MTR_1B_GPIO_Port);
+						MTR_1B_Pin, MTR_1B_GPIO_Port, &htim2);
 }
 
 void BSP_Port_Expansor_Init(void)
@@ -190,4 +194,23 @@ display_7seg_status_e BSP_DISPLAY_7SEG_Init(void)
 
 	disp7SegPExp.super.status = DISPLAY_7SEG_NO_ERROR;
 	return disp7SegPExp.super.status;
+}
+
+void BSP_Robot_Init(void)
+{
+	motor_t motors[2] = {motorWheelLeft, motorWheelRight};
+	//random pid parameters
+	pidWheel[0].Kp = 500;
+	pidWheel[0].Ki = 50;
+	pidWheel[0].Kd = 5;
+	robot.speedConvMatrixRobot2Wheels[0][0] = 1.0;
+	robot.speedConvMatrixRobot2Wheels[0][1] = 1.0;
+	robot.speedConvMatrixRobot2Wheels[1][0] = 1.0;
+	robot.speedConvMatrixRobot2Wheels[1][1] = -1.0;
+
+	robot.speedConvMatrixWheels2Robot[0][0] = 0.5;
+	robot.speedConvMatrixWheels2Robot[0][1] = 0.5;
+	robot.speedConvMatrixWheels2Robot[1][0] = 0.5;
+	robot.speedConvMatrixWheels2Robot[1][1] = -0.5;
+	robot_ctor(&robot, (eeprom_t*)&eeprom_bsp, (imu_t *)&imu1, motors, pidWheel, pidRobot, &motorBrushes);
 }
