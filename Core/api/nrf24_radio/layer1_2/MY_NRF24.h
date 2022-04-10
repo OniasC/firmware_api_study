@@ -65,6 +65,12 @@ typedef enum {
 	NRF24L01,
 	NRF24L01p
 } nrf24_type_e;
+
+typedef enum {
+	RF24_MODE_RX,
+	RF24_MODE_TX
+} nrf24_mode_e;
+
 //4. Pipe address registers
 static const uint8_t NRF24_ADDR_REGS[7] = {
 		NRF24_REG_RX_ADDR_P0,
@@ -85,7 +91,7 @@ static const uint8_t RF24_RX_PW_PIPE[6] = {
 		NRF24_REG_RX_PW_P5
 };
 
-
+/*TODO: fix order of struct to help with packing*/
 typedef struct {
 	SPI_HandleTypeDef * chip_spi;
 
@@ -99,10 +105,15 @@ typedef struct {
 	uint8_t channel;
 	uint8_t payload_size; /**< Fixed size of payloads */
 	uint8_t ack_payload_length;
-
+	nrf24_mode_e mode;
+	bool enableAutoAck;
 	bool dynamic_payloads_enabled; /**< Whether dynamic payloads are enabled. */
 	bool ack_payloads_enabled;
-	uint8_t pipe0_reading_address[5]; /**< Last address set on pipe 0 for reading. */
+	uint64_t pipe0_reading_address; /**< Last address set on pipe 0 for reading. */
+	uint64_t writing_address; /**< Last address set on tx fifo. */
+	/*TODO: adapt to use this in the code (will reflect on network layer later on)*/
+	uint8_t pipes1to5_MSB_reading_address[4]; /**< Last 4 MSB address set on pipes 1-5 for reading. */
+	uint8_t pipes1to5_LSB_reading_address[5]; /**< Last LSB address set on pipes 1-5 for reading. */
 	uint8_t addr_width; /**< The address width to use - 3,4 or 5 bytes. */
 	uint8_t config_reg; /**< For storing the value of the NRF_CONFIG register */
 	//uint32_t spi_speed; /**< SPI Bus Speed */

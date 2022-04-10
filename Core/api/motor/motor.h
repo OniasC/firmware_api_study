@@ -15,15 +15,21 @@
 #define MOTOR_ENCODER_STORAGE 13
 #define SI_TO_TICKS 3000 //for example
 
+typedef TIM_HandleTypeDef encoder_t;
+
 typedef enum {
-	MOTOR_UNI_DIRECTIONAL,
-	MOTOR_BI_DIRECTIONAL
+	MOTOR_MODE_UNI_DIR_OPEN_LOOP,
+	MOTOR_MODE_UNI_DIR_CLOSED_LOOP, //NOT IMPLEMENTED
+	MOTOR_MODE_BI_DIR_DRIVECOAST_OPEN_LOOP, //USES TWO PINS: 2 IO (Dir) 1 PWM (Speed)
+	MOTOR_MODE_BI_DIR_DRIVECOAST_CLOSED_LOOP,
+	MOTOR_MODE_BI_DIR_SIGNMAG_OPEN_LOOP, //USES TWO PINS: 1 IO (Dir) 1 PWM (Speed)
+	MOTOR_MODE_BI_DIR_SIGNMAG_CLOSED_LOOP,
 } motor_mode_e;
 
 typedef struct {
 	motor_status_e status;
 	motor_mode_e mode;
-	TIM_HandleTypeDef *encoder;
+	encoder_t *encoder;
 	pwm_t power;
 	io_pin_t directionA;
 	io_pin_t directionB;
@@ -35,16 +41,23 @@ typedef struct {
 	int deltaEncTicks;
 } motor_t;
 
-motor_status_e motor_ctor(motor_t * const motor, float max_speed, motor_mode_e mode,
-							TIM_HandleTypeDef *htim, uint32_t channel,
-							uint16_t dir_io_A_Pin, GPIO_TypeDef * dir_io_A_GPIO_Port,
-							uint16_t dir_io_B_Pin, GPIO_TypeDef * dir_io_B_GPIO_Port,
-							TIM_HandleTypeDef *htimEncoder);
+motor_status_e motor_ctorSimple(motor_t * const motor, float max_speed, motor_mode_e mode,
+							TIM_HandleTypeDef *htimPWM, uint32_t channel);
 
+motor_status_e motor_ctorDriveCoast(motor_t * const motor, float max_speed, motor_mode_e mode,
+									pwm_t * const pwmPin,
+									io_pin_t * const dir_io_A,
+									io_pin_t * const dir_io_B,
+									encoder_t * const htimEncoder);
 
-motor_status_e motor_speed(motor_t * const motor, float speed);
+motor_status_e motor_ctorSignMag(motor_t * const motor, float max_speed, motor_mode_e mode,
+								pwm_t * const pwmPin,
+								io_pin_t * const dir_io_A,
+								encoder_t * const htimEncoder);
 
-motor_status_e motor_speed_enc(motor_t * const motor, float speed);
+motor_status_e motor_setSpeedOpenLoop(motor_t * const motor, float speed);
+
+motor_status_e motor_setSpeedClosedLoop(motor_t * const motor, float speed);
 
 float motor_getSpeed(motor_t * const motor);
 

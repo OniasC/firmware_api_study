@@ -21,7 +21,8 @@ typedef enum {
 	IMU_NO_ERROR,// = 0,
 	IMU_NOT_CONN,
 	IMU_INIT_ERROR,// = 1,
-	IMU_CALIB_ERROR// = 2,
+	IMU_CALIB_ERROR,// = 2,
+	IMU_CALL_FUNC_ERROR,
 } imu_status_e;
 
 typedef enum {
@@ -76,5 +77,11 @@ typedef enum {
 	MOTOR_NO_ERROR,
 	MOTOR_ERROR,
 } motor_status_e;
+
+typedef enum {
+	lED_NOT_INIT,
+	LED_NO_ERROR,
+	LED_ERROR,
+} led_status_e;
 
 #endif /* API_STATES_H_ */

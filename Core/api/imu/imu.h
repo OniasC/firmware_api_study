@@ -54,34 +54,36 @@ typedef struct
 } imu_t;
 
 struct imu_vtable {
-	imu_status_e (*IMU_readAllI2CVCall)(imu_t * const imu, I2C_HandleTypeDef *hi2c);
-	imu_status_e (*IMU_readAccelI2CVCall)(imu_t * const imu, I2C_HandleTypeDef *hi2c);
-	imu_status_e (*IMU_readGyroI2CVCall)(imu_t * const imu, I2C_HandleTypeDef *I2Cx);
-	imu_status_e (*IMU_readTempI2CVCall)(imu_t * const imu, I2C_HandleTypeDef *I2Cx);
+	imu_status_e (*IMU_readAllVCall)(imu_t * const imu);
+	imu_status_e (*IMU_readAccelVCall)(imu_t * const imu);
+	imu_status_e (*IMU_readGyroVCall)(imu_t * const imu);
+	imu_status_e (*IMU_readTempVCall)(imu_t * const imu);
 };
 
-imu_status_e IMU_I2C_ctor(imu_t * const imu, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask);
+imu_status_e IMU_ctor(imu_t * const imu);
 imu_status_e IMU_complementaryFilter(imu_t *imu);
 
+imu_status_e IMU_adjustAccelToCM(imu_t *const imu, const float rotationMatrix[][3], float rotationAccel, float displacement[], float *const accelCM, uint8_t numberOfDimensions);
+
 /*virtual calls (late bindings) */
-static inline imu_status_e IMU_readAllI2C(imu_t *imu, I2C_HandleTypeDef *hi2c)
+static inline imu_status_e IMU_readAll(imu_t *imu)
 {
-	return (*imu->vptr->IMU_readAllI2CVCall)(imu, hi2c);
+	return (*imu->vptr->IMU_readAllVCall)(imu);
 }
 
-static inline imu_status_e IMU_readAccelI2C(imu_t *imu, I2C_HandleTypeDef *hi2c)
+static inline imu_status_e IMU_readAccel(imu_t *imu)
 {
-	return (*imu->vptr->IMU_readAccelI2CVCall)(imu, hi2c);
+	return (*imu->vptr->IMU_readAccelVCall)(imu);
 }
 
-static inline imu_status_e IMU_readGyroI2C(imu_t *imu, I2C_HandleTypeDef *I2Cx)
+static inline imu_status_e IMU_readGyro(imu_t *imu)
 {
-	return (*imu->vptr->IMU_readGyroI2CVCall)(imu, I2Cx);
+	return (*imu->vptr->IMU_readGyroVCall)(imu);
 }
 
-static inline imu_status_e IMU_readTempI2C(imu_t *imu, I2C_HandleTypeDef *I2Cx)
+static inline imu_status_e IMU_readTemp(imu_t *imu)
 {
-	return (*imu->vptr->IMU_readTempI2CVCall)(imu, I2Cx);
+	return (*imu->vptr->IMU_readTempVCall)(imu);
 }
 
 

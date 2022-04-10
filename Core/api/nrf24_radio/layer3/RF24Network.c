@@ -20,7 +20,7 @@ void RF24Network_ctor(RF24Network_t * const rf24network, nrf24_t * const radio)
 #endif
 	rf24network->radio->addr_width = 5;
 
-	rf24network->radio->pipe0_reading_address[0] = 0;
+	rf24network->radio->pipe0_reading_address = 0;
 	/*end configuring radio*/
 	rf24network->max_frame_payload_size = MAX_FRAME_SIZE - sizeof(RF24NetworkHeader);
 	rf24network->next_frame = rf24network->frame_queue;

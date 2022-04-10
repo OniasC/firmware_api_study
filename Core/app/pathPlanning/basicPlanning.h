@@ -12,8 +12,8 @@
 #include "../robot.h"
 #include "../control/control.h"
 #include "../mapping/mapping.h"
-#include "../mapping/bumpDetection.h"
-#include "../mapping/edgeDetection.h"
+#include "../mapping/floorDetection.h"
+#include "../mapping/wallDetection.h"
 
 typedef enum{
 	PATH_NO_OBSTRUCTION,
@@ -29,11 +29,13 @@ typedef enum{
 extern map_e map[][MAP_LIMIT_Y];
 extern displacement_t odometry[];
 
+void dumbPathPlanning(robot_t * const robot);
+
 pathReturn_e moveForward(robot_t * const robot, float speedForward);
 
-pathReturn_e moveBackward(robot_t * const robot, float speedBackward);
+pathReturn_e moveBackward(robot_t * const robot, float speedBackward, uint32_t timeMilliSec);
 
-pathReturn_e moveRotateCCW(robot_t * const robot, float speedCCW);
+pathReturn_e moveRotateCCW(robot_t * const robot, float speedCCW, uint32_t timeMilliSec);
 
 pathReturn_e moveRotateCW(robot_t * const robot, float speedCW);
 

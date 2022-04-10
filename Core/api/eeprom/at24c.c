@@ -10,6 +10,53 @@
 
 #include "at24c.h"
 
+
+eeprom_status_e eeprom_at24c_WP_ctor(eeprom_at24c_t * const me, eeprom_chip_e eeprom_chip, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask, const io_pin_t writeProtectPin)
+{
+	static const struct eeprom_vtable vtable = {
+		(eeprom_status_e (*)(	eeprom_t const * const me,
+							uint16_t page,
+							uint16_t offset,
+							uint8_t *data,
+							uint16_t size))&eeprom_at24c_readVTable,
+		(eeprom_status_e (*)(eeprom_t const * const me,
+							uint16_t page,
+							uint16_t offset,
+							uint8_t *data,
+							uint16_t size))&eeprom_at24c_writeVTable,
+		(eeprom_status_e (*)(eeprom_t const * const me,
+							uint16_t page))&eeprom_at24c_pageEraseVTable,
+		(eeprom_status_e (*)(eeprom_t const * const me,
+							uint16_t page,
+							uint16_t offset,
+							float fdata))&eeprom_at24c_writeNumVTable,
+		(eeprom_status_e (*)(eeprom_t const * const me,
+							uint16_t page,
+							uint16_t offset,
+							float *fdata))&eeprom_at24c_readNumVTable
+	};
+
+	eeprom_status_e eeprom_ctor_status = eeprom_ctor(&(me->super),
+													eeprom_chip,
+													hi2c,
+													i2c_address_mask);
+	me->super.vptr = &vtable;
+	if (me->super.eeprom_chip == EEPROM_AT24C02C)
+	{
+		me->super.number_pages = 32;
+		me->super.page_size_bytes = 8;
+		me->super.memAddressSize = 1;
+	}
+	if (me->super.eeprom_chip == EEPROM_AT24C16D)
+	{
+		me->super.number_pages = 128;
+		me->super.page_size_bytes = 16;
+		me->super.memAddressSize = 1;
+	}
+	me->writeProtect = writeProtectPin;
+	return eeprom_ctor_status;
+}
+
 eeprom_status_e eeprom_at24c_ctor(eeprom_at24c_t * const me, eeprom_chip_e eeprom_chip, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask)
 {
 	static const struct eeprom_vtable vtable = {
@@ -101,7 +148,7 @@ eeprom_status_e eeprom_at24c_readVTable (eeprom_at24c_t const * const me, uint16
 	uint16_t endPage = page + ((size+offset)/me->super.page_size_bytes);
 
 	uint16_t numofpages = (endPage-startPage) + 1;
-	if (endPage > me->super.number_pages-1)
+	if (endPage >= me->super.number_pages)
 	{
 		eeprom_s = EEPROM_ERROR_OVERFLW_PAGS;
 		error_lvl = ERR_LVL_ERROR;
@@ -113,9 +160,20 @@ eeprom_status_e eeprom_at24c_readVTable (eeprom_at24c_t const * const me, uint16
 
 	for (int i=0; i<numofpages; i++)
 	{
+		uint8_t currentPage = startPage + i;
 		uint16_t MemAddress = startPage<<paddrposition | offset;
 		uint16_t bytesremaining = bytestowrite(me->super, size, offset);
-		HAL_I2C_Mem_Read(me->super.hi2c, me->super.i2c_address, MemAddress, me->super.memAddressSize, &data[pos], bytesremaining, 1000);
+		if(me->super.eeprom_chip == EEPROM_AT24C16D)
+		{
+			uint8_t tempAddress = (me->super.i2c_address | (currentPage >> 4));
+			HAL_I2C_Mem_Read(me->super.hi2c, tempAddress,
+							MemAddress, me->super.memAddressSize, &data[pos],
+							bytesremaining, 1000);
+		} else {
+			HAL_I2C_Mem_Read(me->super.hi2c, me->super.i2c_address,
+							MemAddress, me->super.memAddressSize, &data[pos],
+							bytesremaining, 1000);
+		}
 		startPage += 1;
 		offset=0;
 		size = size-bytesremaining;
@@ -137,7 +195,7 @@ eeprom_status_e eeprom_at24c_writeVTable(eeprom_at24c_t const * const me, uint16
 	// calculate the start page and the end page
 	uint16_t startPage = page;
 	uint16_t endPage = page + ((size+offset)/me->super.page_size_bytes);
-	if (endPage > me->super.number_pages-1)
+	if (endPage >= me->super.number_pages)
 		return EEPROM_ERROR_OVERFLW_PAGS;
 	// number of pages to be written
 	uint16_t numofpages = (endPage-startPage) + 1;
@@ -149,10 +207,20 @@ eeprom_status_e eeprom_at24c_writeVTable(eeprom_at24c_t const * const me, uint16
 		/* calculate the address of the memory location
 		 * Here we add the page address with the byte address
 		 */
+		uint8_t currentPage = startPage + i;
 		uint16_t MemAddress = startPage<<paddrposition | offset;
 		uint16_t bytesremaining = bytestowrite(me->super, size, offset);  // calculate the remaining bytes to be written
-		HAL_I2C_Mem_Write(me->super.hi2c, me->super.i2c_address, MemAddress, me->super.memAddressSize, &data[pos], bytesremaining, 1000);  // write the data to the EEPROM
-
+		if(me->super.eeprom_chip == EEPROM_AT24C16D)
+		{
+			uint8_t tempAddress = (me->super.i2c_address | (currentPage >> 4));
+			HAL_I2C_Mem_Write(me->super.hi2c, tempAddress,
+							  MemAddress, me->super.memAddressSize, &data[pos],
+							  bytesremaining, 1000);  // write the data to the EEPROM
+		} else {
+			HAL_I2C_Mem_Write(me->super.hi2c, me->super.i2c_address,
+							  MemAddress, me->super.memAddressSize, &data[pos],
+							  bytesremaining, 1000);  // write the data to the EEPROM
+		}
 		startPage += 1;  // increment the page, so that a new page address can be selected for further write
 		offset=0;   // since we will be writing to a new page, so offset will be 0
 		size = size-bytesremaining;  // reduce the size of the bytes

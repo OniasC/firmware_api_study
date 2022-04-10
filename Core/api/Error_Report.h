@@ -12,14 +12,12 @@
 //#define SERIAL_DEBUG_MINIMAL
 
 #include "api.h"
-#include "../api/tft_display/tft_display.h"
-#include "../api/tft_display/ST7735.h"
-#include "../api/tft_display/GFX_FUNCTIONS.h"
-#include "../api/radio/MY_NRF24.h"
-#include "../api/motor/motor.h"
-#include "string.h"
 
-//#define API_DEBUG_MESSAGE(x) API_Debug_Messages(x, sizeof(x))
+#define API_DEBUG_MESSAGE_2(...)            					\
+		sprintf(DEBUG_STRING, __VA_ARGS__); 					\
+	  	API_Debug_Messages(DEBUG_STRING, sizeof(DEBUG_STRING)); \
+		memset(DEBUG_STRING, 0, strlen(DEBUG_STRING))			\
+
 #define API_DEBUG_MESSAGE(x) 			 \
 		API_Debug_Messages(x, strlen(x));\
 		memset(x, 0, strlen(x))			 \
@@ -38,7 +36,7 @@
  *
  * error_e could be filled with all the errors to be more a succint way to report the errors
  * */
-
+#define DEBUG_STRING_BUFFER_SIZE 256
 char DEBUG_STRING[256];
 
 typedef enum {

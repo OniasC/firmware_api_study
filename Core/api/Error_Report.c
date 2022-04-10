@@ -18,6 +18,19 @@
 
 void API_Debug_Messages(const char *error_message, uint16_t len)
 {
+	// search for the end of string and
+	if (sizeof(DEBUG_STRING) == len)
+	{
+		for (int i = 0; i < DEBUG_STRING_BUFFER_SIZE; i++)
+		{
+			if(error_message[i] == '\0')
+			{
+				len = i;
+				break;
+			}
+		}
+	}
+
 	if ((debug_option & DEBUG_PC_UART) == 1)
 	{
 		HAL_UART_Transmit(&huart1, (uint8_t *)error_message, len, HAL_MAX_DELAY);

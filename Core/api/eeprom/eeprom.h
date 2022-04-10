@@ -14,6 +14,7 @@
 
 typedef enum {
 	EEPROM_AT24C02C,
+	EEPROM_AT24C16D,
 	EEPROM_M24C64
 	/* Enter later other EEPROMs we could end up using */
 } eeprom_chip_e;

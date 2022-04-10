@@ -32,18 +32,18 @@ typedef struct {
 	uint16_t i2c_timeout;// = 100;
 	double Accel_Z_corrector;// = 14418.0;
 	uint8_t i2c_address;
-
+	I2C_HandleTypeDef *hi2c;
 } imu_mpu6050_t;
 
 imu_status_e imu_mpu6050_ctor(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
 
-imu_status_e imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readAccelVTable(imu_mpu6050_t * const mpu6050);
 
-imu_status_e imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readGyroVTable(imu_mpu6050_t * const mpu6050);
 
-imu_status_e imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readTempVTable(imu_mpu6050_t * const mpu6050);
 
-imu_status_e imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050, I2C_HandleTypeDef *hi2c);
+imu_status_e imu_mpu6050_readAllVTable(imu_mpu6050_t * const mpu6050);
 
 
 #endif /* API_IMU_MPU6050_H_ */

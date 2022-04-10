@@ -10,9 +10,13 @@
 
 #include "main.h"
 #include "states.h"
+#include "string.h"
 
 #define API_TRUE 1U
 #define API_FALSE 0U
+
+#define API_LOW 0U
+#define API_HIGH 1U
 
 /*
  * how to add a new peripheral to the code:

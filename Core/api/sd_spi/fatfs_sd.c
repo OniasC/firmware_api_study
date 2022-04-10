@@ -2,7 +2,7 @@
 #define FALSE 0
 #define bool BYTE
 
-#include "stm32f1xx_hal.h"
+#include "../api.h"
 #include "diskio.h"
 #include "fatfs_sd.h"
 

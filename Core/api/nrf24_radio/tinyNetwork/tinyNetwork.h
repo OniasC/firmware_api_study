@@ -289,6 +289,8 @@ bool tinyNetwork_write(tinyNetwork_t * const rf24network, tinyNetworkHeader * he
 
 bool tinyNetwork_write_2_params(tinyNetwork_t * const rf24network, uint16_t to_node, uint8_t directTo); // Direct To: 0 = First Payload, standard routing, 1=routed payload, 2=directRoute to host, 3=directRoute to Route
 bool tinyNetwork_write_to_pipe(tinyNetwork_t * const rf24network, uint16_t node, uint8_t pipe, bool multicast);
+
+bool tinyNetwork_write_test(tinyNetwork_t * const rf24network, tinyNetworkHeader * header, const void *message, uint16_t len);
 void tinyNetwork_logicalToPhysicalAddress(tinyNetwork_t * const rf24network, tinyLogicalToPhysicalStruct *conversionInfo);
 void tinyNetwork_setup_address(tinyNetwork_t * const rf24network);
 uint64_t tinyNetwork_pipe_address(tinyNetwork_t * const rf24network, uint16_t node, uint8_t pipe);

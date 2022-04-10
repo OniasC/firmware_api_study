@@ -33,7 +33,6 @@ References:				This library was written based on the Arduino NRF24 Open-Source l
 #define _BOOL(x) (((x)>0) ? 1:0)
 
 //*** Library variables ***//
-static uint64_t pipe0_reading_address;
 static bool ack_payload_available; /**< Whether there is an ack payload waiting */
 
 //*** NRF24L01 pins and handles ***//
@@ -109,6 +108,7 @@ uint8_t NRF24_readRegister(nrf24_t * const radio, uint8_t reg)
 	NRF24_csn(radio, 1);
 	return retData;
 }
+
 uint8_t NRF24_readRegister_v2(nrf24_t * const radio, uint8_t reg, uint8_t * ret)
 {
 	uint8_t spiBuf[3];
@@ -225,33 +225,42 @@ void NRF24_begin(nrf24_t * const radio)
 	NRF24_writeRegister(radio, NRF24_REG_CONFIG, 		0x08);
 	NRF24_writeRegister(radio, NRF24_REG_EN_AA, 		0x3f);
 	NRF24_writeRegister(radio, NRF24_REG_EN_RXADDR, 	0x03);
-	NRF24_writeRegister(radio, NRF24_REG_SETUP_AW, 	0x03);
+	NRF24_writeRegister(radio, NRF24_REG_SETUP_AW, 		0x03);
 	NRF24_writeRegister(radio, NRF24_REG_SETUP_RETR,	0x03);
 	NRF24_writeRegister(radio, NRF24_REG_RF_CH, 		0x02);
-	NRF24_writeRegister(radio, NRF24_REG_RF_SETUP, 	0x0f);
+	NRF24_writeRegister(radio, NRF24_REG_RF_SETUP, 		0x0f);
 	NRF24_writeRegister(radio, NRF24_REG_STATUS, 		0x0e);
 	NRF24_writeRegister(radio, NRF24_REG_OBSERVE_TX, 	0x00);
 	NRF24_writeRegister(radio, NRF24_REG_CD, 			0x00);
 
 	uint8_t pipeAddrVar[5]= {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
-	NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P0, pipeAddrVar, 5);
+	radio->pipe0_reading_address = 0xE7E7E7E7E7;
+	NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P0, (uint8_t *)(&radio->pipe0_reading_address), 5);
 
-	pipeAddrVar[4] = 0xC2;
-	pipeAddrVar[3] = 0xC2;
-	pipeAddrVar[2] = 0xC2;
-	pipeAddrVar[1] = 0xC2;
-	pipeAddrVar[0] = 0xC2;
+
+	radio->pipes1to5_MSB_reading_address[3] = 0xC2;
+	radio->pipes1to5_MSB_reading_address[2] = 0xC2;
+	radio->pipes1to5_MSB_reading_address[1] = 0xC2;
+	radio->pipes1to5_MSB_reading_address[0] = 0xC2;
+	radio->pipes1to5_LSB_reading_address[0] = 0xC2;
+	*pipeAddrVar = *radio->pipes1to5_MSB_reading_address;
+	pipeAddrVar[0] = radio->pipes1to5_LSB_reading_address[0];
 	NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P1, 	pipeAddrVar, 5);
-	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P2, 	0xC3);
-	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P3, 	0xC4);
-	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P4, 	0xC5);
-	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P5, 	0xC6);
+	radio->pipes1to5_LSB_reading_address[1] = 0xC3;
+	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P2, 	radio->pipes1to5_LSB_reading_address[1]);
+	radio->pipes1to5_LSB_reading_address[2] = 0xC4;
+	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P3, 	radio->pipes1to5_LSB_reading_address[2]);
+	radio->pipes1to5_LSB_reading_address[3] = 0xC4;
+	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P4, 	radio->pipes1to5_LSB_reading_address[3]);
+	radio->pipes1to5_LSB_reading_address[4] = 0xC5;
+	NRF24_writeRegister(radio, NRF24_REG_RX_ADDR_P5, 	radio->pipes1to5_LSB_reading_address[4]);
 
 	pipeAddrVar[4] = 0xE7;
 	pipeAddrVar[3] = 0xE7;
 	pipeAddrVar[2] = 0xE7;
 	pipeAddrVar[1] = 0xE7;
 	pipeAddrVar[0] = 0xE7;
+	radio->writing_address = 0xE7E7E7E7E7;
 	NRF24_writeRegisterN(radio, NRF24_REG_TX_ADDR, pipeAddrVar, 5);
 	NRF24_writeRegister(radio, NRF24_REG_RX_PW_P0, 0);
 	NRF24_writeRegister(radio, NRF24_REG_RX_PW_P1, 0);
@@ -267,7 +276,7 @@ void NRF24_begin(nrf24_t * const radio)
 	//Initialize retries 15 and delay 1250 usec
 	NRF24_setRetries(radio, 15, 15); /*setRetries(5, 15);*/
 	//Initialize PA level to max (0dB)
-	NRF24_setPALevel(radio, RF24_PA_0dB);
+	NRF24_setPALevel(radio, RF24_PA_m12dB);
 	//Initialize data rate to 1Mbps
 	NRF24_setDataRate(radio, RF24_1MBPS);
 	//Initialize CRC length to 16-bit (2 bytes)
@@ -296,10 +305,10 @@ void NRF24_begin(nrf24_t * const radio)
 void NRF24_startListening(nrf24_t * const radio)
 {
 	//Power up and set to RX mode
-	NRF24_writeRegister(radio, NRF24_REG_CONFIG, NRF24_readRegister(radio, NRF24_REG_CONFIG) | (1UL<<1) |(1UL <<0));
+	NRF24_writeRegister(radio, NRF24_REG_CONFIG, NRF24_readRegister(radio, NRF24_REG_CONFIG) | _BV(BIT_PWR_UP) | _BV(BIT_PRIM_RX));
 	//Restore pipe 0 address if exists
-	if(pipe0_reading_address)
-		NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P0, (uint8_t *)(&pipe0_reading_address), 5);
+	if(radio->pipe0_reading_address)
+		NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P0, (uint8_t *)(&radio->pipe0_reading_address), 5);
 
 	//Flush buffers
 	NRF24_flush_tx(radio);
@@ -369,32 +378,34 @@ bool NRF24_read(nrf24_t * const radio,  void* buf, uint8_t len )
 //18. Open Tx pipe for writing (Cannot perform this while Listening, has to call NRF24_stopListening)
 void NRF24_openWritingPipe(nrf24_t * const radio, uint64_t address)
 {
+	radio->pipe0_reading_address = address;
+	radio->writing_address = address;
 	NRF24_writeRegisterN(radio, NRF24_REG_RX_ADDR_P0, (uint8_t *)(&address), 5);
 	NRF24_writeRegisterN(radio, NRF24_REG_TX_ADDR, (uint8_t *)(&address), 5);
 
 	NRF24_writeRegister(radio, NRF24_REG_RX_PW_P0, MIN(radio->payload_size, NRF24_MAX_PAYLOAD_SIZE));
 }
 //19. Open reading pipe
-void NRF24_openReadingPipe(nrf24_t * const radio, uint8_t number, uint64_t address)
+void NRF24_openReadingPipe(nrf24_t * const radio, uint8_t pipeNumber, uint64_t address)
 {
-	if (number == 0)
-    pipe0_reading_address = address;
-
-	if(number <= 6)
+	if (pipeNumber == 0)
+		radio->pipe0_reading_address = address;
+/*TODO: pass address to correct pipeNumber*/
+	if(pipeNumber <= 6)
 	{
-		if(number < 2)
+		if(pipeNumber < 2)
 		{
 			//Address width is 5 bytes
-			NRF24_writeRegisterN(radio, NRF24_ADDR_REGS[number], (uint8_t *)(&address), 5);
+			NRF24_writeRegisterN(radio, NRF24_ADDR_REGS[pipeNumber], (uint8_t *)(&address), 5);
 		}
 		else
 		{
-			NRF24_writeRegisterN(radio, NRF24_ADDR_REGS[number], (uint8_t *)(&address), 1);
+			NRF24_writeRegisterN(radio, NRF24_ADDR_REGS[pipeNumber], (uint8_t *)(&address), 1);
 		}
 		//Write payload size
-		NRF24_writeRegister(radio, RF24_RX_PW_PIPE[number], radio->payload_size);
+		NRF24_writeRegister(radio, RF24_RX_PW_PIPE[pipeNumber], radio->payload_size);
 		//Enable pipe
-		NRF24_writeRegister(radio, NRF24_REG_EN_RXADDR, NRF24_readRegister(radio, NRF24_REG_EN_RXADDR) | _BV(number));
+		NRF24_writeRegister(radio, NRF24_REG_EN_RXADDR, NRF24_readRegister(radio, NRF24_REG_EN_RXADDR) | _BV(pipeNumber));
 	}
 
 }

@@ -17,9 +17,12 @@ Read-Only Memory (EEPROM) organized as 128/256 words of 8 bits each.
 
 typedef struct {
 	eeprom_t super;
+	io_pin_t writeProtect;
 } eeprom_at24c_t;
 
 //TODO: write doxygen style documentation
+
+eeprom_status_e eeprom_at24c_WP_ctor(eeprom_at24c_t * const me, eeprom_chip_e eeprom_chip, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask, const io_pin_t writeProtectPin);
 
 eeprom_status_e eeprom_at24c_ctor(eeprom_at24c_t * const me, eeprom_chip_e eeprom, I2C_HandleTypeDef *hi2c, uint8_t i2c_address_mask);
 

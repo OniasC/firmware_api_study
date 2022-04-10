@@ -18,7 +18,7 @@ References:
 */
 
 //Header Files
-#include "stm32f1xx_hal.h"  //dpending on your board
+#include "../api.h"
 #include <string.h>
 #include <stdbool.h>	//Boolean
 #include <math.h>			//Pow()
