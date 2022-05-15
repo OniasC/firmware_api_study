@@ -49,6 +49,8 @@ led_status_e led_set(led_t * const led);
 
 led_status_e led_reset(led_t * const led);
 
+led_status_e led_toggle(led_t * const led);
+
 led_status_e led_setPWM(led_t * const led, uint32_t value);
 
 #endif /* API_LED_LED_H_ */

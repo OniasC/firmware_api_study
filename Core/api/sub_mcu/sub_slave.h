@@ -28,7 +28,7 @@ typedef struct _slave_t {
 } mcuSpiSubsriber_t ;
 
 /* all return 0 if successful */
-uint8_t slave_ctor(mcuSpiSubsriber_t* subs, uint8_t id, SPI_HandleTypeDef *hspi, io_pin_t 	chipSelectPin, io_pin_t 	irqPin);
+uint8_t slave_ctor(mcuSpiSubsriber_t* const subs, uint8_t id, SPI_HandleTypeDef *hspi, io_pin_t *const chipSelectPin, io_pin_t*	const irqPin);
 
 uint8_t slave_set_value(mcuSpiSubsriber_t* subs, float v);
 uint8_t slave_get_value(mcuSpiSubsriber_t* subs);

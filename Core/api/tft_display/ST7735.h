@@ -85,8 +85,8 @@ void ST7735_DisplayInit(tft_display_t * const tft_display, const uint16_t *addr)
 void ST7735_Init(tft_display_t * const tft_display, tft_rotation_e rotation);
 void ST7735_SetRotation(tft_display_t * const tft_display, tft_rotation_e rotation);
 void ST7735_DrawPixel(tft_display_t * const tft_display, uint16_t x, uint16_t y, uint16_t color);
-void ST7735_WriteChar(tft_display_t * const tft_display, uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor);
-void ST7735_WriteString(tft_display_t * const tft_display, uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor);
+void ST7735_WriteChar(tft_display_t * const tft_display, uint16_t x, uint16_t y, char ch, FontDef_t font, uint16_t color, uint16_t bgcolor);
+void ST7735_WriteString(tft_display_t * const tft_display, uint16_t x, uint16_t y, const char* str, FontDef_t font, uint16_t color, uint16_t bgcolor);
 void ST7735_FillRectangle(tft_display_t * const tft_display, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 //void ST7735_FillScreen(uint16_t color);
 void ST7735_DrawImage(tft_display_t * const tft_display, uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);

@@ -305,14 +305,14 @@ void ST7735_DrawPixel(tft_display_t * const tft_display, uint16_t x, uint16_t y,
     ST7735_Unselect(tft_display);
 }
 
-void ST7735_WriteChar(tft_display_t * const tft_display, uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
+void ST7735_WriteChar(tft_display_t * const tft_display, uint16_t x, uint16_t y, char ch, FontDef_t font, uint16_t color, uint16_t bgcolor) {
     uint32_t i, b, j;
 
-    ST7735_SetAddressWindow(tft_display, x, y, x+font.width-1, y+font.height-1);
+    ST7735_SetAddressWindow(tft_display, x, y, x+font.FontWidth-1, y+font.FontHeight-1);
 
-    for(i = 0; i < font.height; i++) {
-        b = font.data[(ch - 32) * font.height + i];
-        for(j = 0; j < font.width; j++) {
+    for(i = 0; i < font.FontHeight; i++) {
+        b = font.data[(ch - 32) * font.FontHeight + i];
+        for(j = 0; j < font.FontWidth; j++) {
             if((b << j) & 0x8000)  {
                 uint16_t data[] = { color >> 8, (color & 0xFF) };
                 ST7735_WriteData(tft_display, data, sizeof(data)/2);
@@ -324,14 +324,14 @@ void ST7735_WriteChar(tft_display_t * const tft_display, uint16_t x, uint16_t y,
     }
 }
 
-void ST7735_WriteString(tft_display_t * const tft_display, uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor) {
+void ST7735_WriteString(tft_display_t * const tft_display, uint16_t x, uint16_t y, const char* str, FontDef_t font, uint16_t color, uint16_t bgcolor) {
     ST7735_Select(tft_display);
 
     while(*str) {
-        if(x + font.width >= tft_display->width) {
+        if(x + font.FontWidth >= tft_display->width) {
             x = 0;
-            y += font.height;
-            if(y + font.height >= tft_display->height) {
+            y += font.FontHeight;
+            if(y + font.FontHeight >= tft_display->height) {
                 break;
             }
 
@@ -343,7 +343,7 @@ void ST7735_WriteString(tft_display_t * const tft_display, uint16_t x, uint16_t 
         }
 
         ST7735_WriteChar(tft_display, x, y, *str, font, color, bgcolor);
-        x += font.width;
+        x += font.FontWidth;
         str++;
     }
 

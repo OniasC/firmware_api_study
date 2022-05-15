@@ -8,12 +8,14 @@
 #include "sub_slave.h"
 #include "sub_mcu.h"
 
-uint8_t slave_ctor(mcuSpiSubsriber_t* subs, uint8_t id, SPI_HandleTypeDef *hspi, io_pin_t 	chipSelectPin, io_pin_t 	irqPin)
+uint8_t slave_ctor(mcuSpiSubsriber_t* const subs, uint8_t id, SPI_HandleTypeDef *hspi, io_pin_t* const chipSelectPin, io_pin_t* const 	irqPin)
 {
 	subs->id = id;
 	subs->hspi = hspi;
-	subs->chipSelectPin = chipSelectPin;
-	subs->irqPin = irqPin;
+	subs->chipSelectPin.gpio_pin = chipSelectPin->gpio_pin;
+	subs->chipSelectPin.gpio_port = chipSelectPin->gpio_port;
+	subs->irqPin.gpio_pin = irqPin->gpio_pin;
+	subs->irqPin.gpio_port = irqPin->gpio_port;
 
 	HAL_GPIO_WritePin(subs->chipSelectPin.gpio_port, subs->chipSelectPin.gpio_pin, GPIO_PIN_SET);
 	return 0;

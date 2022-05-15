@@ -35,7 +35,7 @@ led_status_e led_set(led_t * const led)
 {
 	if(led->polarity == LED_POLARITY_DIRECT)
 		led->mode = LED_MODE_GPIO_SET;
-	if(led->polarity == LED_POLARITY_INVERSE)
+	else if(led->polarity == LED_POLARITY_INVERSE)
 			led->mode = LED_MODE_GPIO_RESET;
 
 	HAL_GPIO_WritePin(led->gpio.gpio_port, led->gpio.gpio_pin, led->mode);
@@ -46,9 +46,15 @@ led_status_e led_reset(led_t * const led)
 {
 	if(led->polarity == LED_POLARITY_DIRECT)
 		led->mode = LED_MODE_GPIO_RESET;
-	if(led->polarity == LED_POLARITY_INVERSE)
-			led->mode = LED_MODE_GPIO_SET;
+	else if(led->polarity == LED_POLARITY_INVERSE)
+		led->mode = LED_MODE_GPIO_SET;
 	HAL_GPIO_WritePin(led->gpio.gpio_port, led->gpio.gpio_pin, led->mode);
+	return led->status;
+}
+
+led_status_e led_toggle(led_t * const led)
+{
+	HAL_GPIO_TogglePin(led->gpio.gpio_port, led->gpio.gpio_pin);
 	return led->status;
 }
 
